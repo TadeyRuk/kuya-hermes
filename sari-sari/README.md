@@ -66,7 +66,7 @@ Hermes's built-in `google-workspace` skill needs a Google Cloud OAuth client:
 ### 4. Install Kuya Hermes
 ```powershell
 git clone https://github.com/polsalarm/kuya-hermes.git
-cd kuya-hermes
+cd kuya-hermes/sari-sari
 powershell -ExecutionPolicy Bypass -File setup\install.ps1 -TelegramChatId <your-telegram-user-id>
 hermes gateway restart
 ```

@@ -1,3 +1,42 @@
+# Kuya Hermes · Suki Mart branch-ops copilot
+
+> **CAMP / RUN Hermes Agent hackathon · Track 3: Open Innovation**
+> One Hermes agent on two surfaces: **HQ in Hermes Desktop** and **branch managers on Telegram**, sharing the same MCP tools and skill over the Suki Mart sandbox.
+
+**Problem.** Suki Mart's branches lose sales and goodwill for reasons nobody connects in time. In the sandbox (as of 2026-09-30):
+- **47 items are out of stock**, and Ermita alone has 14 out of stock with no purchase order.
+- **12 products have duplicate open purchase orders.** BGC's Calamansi Juice has 4 at once.
+- Suppliers promise one lead time and deliver another: Visayas Canning promises 5 days and really takes **11.3**.
+- Shift no-shows and sick calls leave blocks below staffing targets, with **46 support tickets never answered** on top.
+
+**Solution.** Kuya Hermes turns that into one loop: **detect → check → propose → confirm → act**.
+
+| Layer | What we built |
+|---|---|
+| **MCP server** (`mcp-server/server.py`, server name `suki`) | `network_sweep` ranks all 12 branches by risk · `branch_pulse` covers stock, staffing gaps, tickets and deliveries · `check_restock` has a duplicate-PO guard and uses the supplier's *real* lead time · `create_purchase_order` (write, refuses duplicates) · `find_staff_shifts` · `find_shift_cover` ranks the most reliable free colleague · `assign_cover` (write) |
+| **Skill** (`skills/kuya-hermes-ops`) | Workflows for full sweep, branch pulse, fixing stockouts and covering absences. Every write needs an explicit yes. Reads Taglish field reports (*"ubos na ang bottled water sa ALB"*, *"di pumasok si John bukas"*). Fixed output format for the pane |
+| **Desktop plugin** (`desktop-plugin/kuya-hermes-hq`) | A **Kuya Hermes HQ** page in the sidebar: a **▶ Run full sweep** button, 12-branch picker, per-branch actions, and an "Ask Kuya" box. Plus a side pane next to the chat and Ctrl+K commands |
+| **Bonus channel** | The Hermes Telegram gateway. Branch managers report from the floor, and the same skill and MCP answer |
+
+**Flow:** HQ page button / Telegram message → `kuya-hermes-ops` skill → `mcp_suki_*` tools → `data/store.db` → answer, then confirmed write → result back in the chat.
+
+### Run it (Windows)
+```powershell
+# MCP (absolute path)
+hermes mcp add suki --command uv --args run C:\path\to\kuya-hermes\mcp-server\server.py
+# Skill + plugin. On Windows the Hermes home is %LOCALAPPDATA%\hermes, not %USERPROFILE%\.hermes
+xcopy /E /I skills\kuya-hermes-ops %LOCALAPPDATA%\hermes\skills\kuya-hermes-ops
+xcopy /E /I desktop-plugin\kuya-hermes-hq %LOCALAPPDATA%\hermes\desktop-plugins\kuya-hermes-hq
+copy persona-SOUL.md %LOCALAPPDATA%\hermes\SOUL.md   # optional: Kuya Hermes persona
+hermes gateway restart
+hermes desktop        # Ctrl+K → Reload desktop plugins → sidebar: Kuya Hermes HQ
+```
+Reset the data after a demo with `git checkout -- data/store.db`.
+
+`sari-sari/` holds our earlier prototype: the same Kuya Hermes persona keeping utang and stock for a single sari-sari store via Telegram and Google Sheets.
+
+---
+
 # Camp Run with Hermes Agent
 
 **The official starter kit for the CAMP / RUN Hermes Agent hackathon** — October 2, 2026 · Avtica Office.
