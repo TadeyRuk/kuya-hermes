@@ -3,159 +3,322 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kuya Hermes · AI branch-ops copilot for Suki Mart</title>
-  <meta name="description" content="Kuya Hermes catches stockouts, duplicate purchase orders and short shifts across Suki Mart's 12 branches, and fixes them with your approval, from Hermes Desktop or Telegram.">
+  <title>Kuya Hermes · Branch-Ops Copilot for Suki Mart</title>
+  <meta name="description" content="Kuya Hermes monitors stockouts, duplicate purchase orders, and short shifts across 12 Suki Mart branches, drafting verified fixes for human approval.">
   <link rel="icon" href="/assets/kuya-hermes-avatar-160.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+  <!-- Navigation Header (§12 Translucent Glass Chrome) -->
   <nav class="nav">
     <div class="wrap">
-      <a class="brand" href="/"><img src="/assets/kuya-hermes-avatar-160.png" alt=""><span>Kuya Hermes<small>for Suki Mart</small></span></a>
+      <a class="brand" href="/">
+        <img src="/assets/kuya-hermes-avatar-160.png" alt="Kuya Hermes Avatar">
+        <div class="brand-title">
+          <span>Kuya Hermes</span>
+          <small>Suki Mart Copilot</small>
+        </div>
+      </a>
       <div class="nav-links">
         <a href="#problem">Problem</a>
-        <a href="#how">How it works</a>
-        <a href="#features">Features</a>
-        <a class="btn btn-gold" href="/dashboard">Open live dashboard <i data-icon="arrow"></i></a>
+        <a href="#architecture">Architecture</a>
+        <a href="#floor-demo">Floor Ops</a>
+        <a href="#features">Capabilities</a>
+        <a class="btn btn-accent" href="/dashboard">Launch Dashboard <i data-icon="arrow"></i></a>
       </div>
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- Hero Section (§1, §4, §15 Grounded Product Showcase) -->
   <header class="hero">
     <div class="wrap">
-      <div>
-        <span class="eyebrow">🧢 CAMP / RUN · Hermes Agent hackathon</span>
-        <h1>Your branches' <span class="gold">kuya</span> who never sleeps.</h1>
-        <p class="lead">Kuya Hermes catches stockouts, duplicate purchase orders and short shifts across all 12 Suki Mart branches, and fixes them <b>with your approval</b>, from Hermes Desktop at HQ or from Telegram on the store floor.</p>
+      <div class="hero-copy">
+        <span class="eyebrow"><i data-icon="shield" style="width:14px;height:14px"></i> Suki Mart Branch-Ops Copilot</span>
+        <h1>Every branch in sync.<br>From floor to HQ.</h1>
+        <p class="lead">Kuya Hermes monitors stockouts, duplicate purchase orders, and short shifts across all 12 Suki Mart branches in real time. Proposes the exact fix, waits for your explicit confirmation, and commits directly to the database.</p>
+        
         <div class="ctas">
-          <a class="btn btn-gold btn-lg" href="/dashboard"><i data-icon="fullSweep"></i> Try the live dashboard</a>
+          <a class="btn btn-accent btn-lg" href="/dashboard"><i data-icon="fullSweep"></i> Try the live dashboard</a>
           <a class="btn btn-lg" href="https://t.me/kuyahermes_bot" target="_blank" rel="noopener"><i data-icon="telegram"></i> Chat on Telegram</a>
         </div>
+
         <div class="trust">
-          <span class="pill"><span class="dot"></span> Live on the Suki Mart sandbox</span>
-          <span class="pill">🗣️ Taglish-ready</span>
-          <span class="pill">✅ Human-approved writes</span>
+          <span class="pill"><span class="dot"></span> 12 Metro Manila Branches</span>
+          <span class="pill"><span class="dot amber"></span> Taglish-Native</span>
+          <span class="pill"><i data-icon="check" style="width:13px;height:13px;color:var(--green)"></i> Human-Confirmed Writes</span>
         </div>
       </div>
-      <div class="mascot-stage">
-        <div class="bubble">“Ubos na ang bottled water sa Ermita. Wala pang PO. <b>I-file ko na ba?</b>”</div>
-        <img src="/assets/kuya-hermes-fullbody.png" alt="Kuya Hermes mascot waving, holding a grocery bag and a tablet">
+
+      <!-- Grounded Hardware / OS Application Stage -->
+      <div class="product-stage">
+        <div class="window-header">
+          <div class="traffic-lights">
+            <span class="traffic-dot red"></span>
+            <span class="traffic-dot yellow"></span>
+            <span class="traffic-dot green"></span>
+          </div>
+          <div class="window-title">
+            <i data-icon="desktop" style="width:13px;height:13px"></i> Hermes Desktop — Kuya Hermes HQ
+          </div>
+        </div>
+
+        <div class="window-body">
+          <div class="stage-split">
+            <div class="mascot-frame">
+              <img src="/assets/kuya-hermes-fullbody.png" alt="Kuya Hermes Mascot">
+            </div>
+            <div class="stage-card">
+              <div class="stage-card-head">
+                <span class="stage-card-title"><i data-icon="store"></i> ALB · Alabang</span>
+                <span class="badge high">RISK 58</span>
+              </div>
+              <div class="stage-item">
+                <span class="muted">Bottled Water 6L</span>
+                <span class="chip red">0 on hand · No PO</span>
+              </div>
+              <div class="stage-item">
+                <span class="muted">Cashier Shift (Oct 1)</span>
+                <span class="chip amber">1 shortfall</span>
+              </div>
+              <div class="stage-item">
+                <span class="muted">Visayas Canning</span>
+                <span class="chip">11.3d real lead</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage-chat-bubble">
+            <strong>Kuya Hermes:</strong> "Ubos na ang Bottled Water 6L sa Alabang nang walang bukas na PO. I-draft ko na ang purchase order para sa 5 cases base sa totoong 3.1-day supplier delivery time?"
+            <div class="stage-actions">
+              <a href="/dashboard" class="btn btn-accent btn-sm">Oo, i-file mo na ✓</a>
+              <a href="/dashboard" class="btn btn-sm">Ipakita ang detalye</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- PROBLEM -->
+  <!-- Problem Section (Real Suki Mart Data) -->
   <section id="problem">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">The problem</span>
-        <h2>Small misses that nobody connects in time.</h2>
-        <p>Every Suki Mart team sees its own slice: purchasing, scheduling, customer care. Nobody sees the whole branch until it's too late. Here's the sandbox right now:</p>
+        <span class="eyebrow">The Operational Blindspot</span>
+        <h2>Disconnected data costs branches daily.</h2>
+        <p>Purchasing, shift scheduling, and customer service operate in separate silos. Nobody catches the compounding issue until shelves sit empty. Current network status from <code>store.db</code>:</p>
       </div>
+      
       <div class="stats" id="stats">
-        <div class="card stat"><div class="num red" data-k="out_of_stock">—</div><div class="label">items out of stock</div><div class="sub">across the 12 branches</div></div>
-        <div class="card stat"><div class="num" data-k="duplicate_po_pairs">—</div><div class="label">products with duplicate POs</div><div class="sub">money tied up in double orders</div></div>
-        <div class="card stat"><div class="num" data-k="lead">—</div><div class="label">real vs promised lead time</div><div class="sub" data-k="lead_sub">worst supplier</div></div>
-        <div class="card stat"><div class="num red" data-k="tickets_never_answered">—</div><div class="label">tickets never answered</div><div class="sub">customers left on read</div></div>
+        <div class="card stat">
+          <div class="num danger" data-k="out_of_stock">47</div>
+          <div class="label">Items out of stock</div>
+          <div class="sub">Across 12 branches without replenishment</div>
+        </div>
+        <div class="card stat">
+          <div class="num warning" data-k="duplicate_po_pairs">12</div>
+          <div class="label">Products with duplicate POs</div>
+          <div class="sub">Working capital tied up in redundant orders</div>
+        </div>
+        <div class="card stat">
+          <div class="num" data-k="lead">11.3d vs 5.0d</div>
+          <div class="label">Real vs promised lead time</div>
+          <div class="sub" data-k="lead_sub">Visayas Canning Corp.</div>
+        </div>
+        <div class="card stat">
+          <div class="num danger" data-k="tickets_never_answered">46</div>
+          <div class="label">Tickets never answered</div>
+          <div class="sub">Customer inquiries left without response</div>
+        </div>
       </div>
-      <div class="live-tag"><span class="dot"></span> Pulled live from <code>store.db</code> through the same tools Kuya uses · as of Sep 30, 2026</div>
+
+      <div class="live-tag">
+        <span class="dot"></span> Telemetry pulled live from Suki Mart SQLite database (230,000 records) · As of Sep 30, 2026
+      </div>
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section id="how" style="padding-top:20px">
+  <!-- System Architecture Section -->
+  <section id="architecture">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">How it works</span>
-        <h2>One agent. Two surfaces. Zero guesswork.</h2>
-        <p>Built on Hermes Agent in three connected layers. HQ and the store floor talk to the same Kuya, the same playbook and the same data.</p>
+        <span class="eyebrow">Architecture & Safety</span>
+        <h2>One copilot. Two surfaces. Zero guesswork.</h2>
+        <p>Kuya Hermes runs as an integrated operational loop. Floor staff and HQ leadership share identical data, safety invariants, and execution tools.</p>
       </div>
+
       <div class="layers">
-        <div class="card layer"><span class="tag">FACE</span><div class="ico"><i data-icon="desktop"></i></div><h3>Hermes Desktop + Telegram</h3><p>HQ clicks <b>Run full sweep</b>. Branch managers text Kuya in Taglish from the floor.</p></div>
-        <div class="card layer"><span class="tag">PLAYBOOK</span><div class="ico"><i data-icon="fieldReport"></i></div><h3>kuya-hermes-ops skill</h3><p>Turns a request into steps: detect → check → propose → <b>ask for your yes</b> → act.</p></div>
-        <div class="card layer"><span class="tag">HANDS</span><div class="ico"><i data-icon="purchaseOrder"></i></div><h3>suki MCP server</h3><p>9 domain tools: sweep, pulse, restock check, PO, shift cover. No "run any SQL".</p></div>
-        <div class="card layer"><span class="tag">DATA</span><div class="ico"><i data-icon="store"></i></div><h3>Suki Mart store.db</h3><p>12 branches, about 230k rows, six months of history. Every number comes from here.</p></div>
+        <div class="card layer">
+          <span class="layer-badge">Surface Layer</span>
+          <div class="ico"><i data-icon="desktop"></i></div>
+          <h3>Hermes Desktop & Telegram</h3>
+          <p>HQ runs sweeps and multi-branch audits. Floor managers send concise Taglish audio and text updates directly from the aisles.</p>
+        </div>
+
+        <div class="card layer">
+          <span class="layer-badge">Playbook Layer</span>
+          <div class="ico"><i data-icon="fieldReport"></i></div>
+          <h3>kuya-hermes-ops Skill</h3>
+          <p>Structured operational workflows: detect anomalies, cross-reference inventory, propose remedies, and require human sign-off.</p>
+        </div>
+
+        <div class="card layer">
+          <span class="layer-badge">Tools Layer</span>
+          <div class="ico"><i data-icon="purchaseOrder"></i></div>
+          <h3>suki MCP Server</h3>
+          <p>9 typed domain tools. Validates duplicate PO guards and supplier lead time formulas. Arbitrary SQL queries are prohibited.</p>
+        </div>
+
+        <div class="card layer">
+          <span class="layer-badge">Data Layer</span>
+          <div class="ico"><i data-icon="store"></i></div>
+          <h3>Suki Mart store.db</h3>
+          <p>High-integrity SQLite store tracking 12 branches, 6 months of historical shift attendance, supplier deliveries, and ticket queues.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- FEATURES -->
-  <section id="features" style="padding-top:20px">
+  <!-- Interactive Floor Demo Section -->
+  <section id="floor-demo">
+    <div class="wrap demo-wrap">
+      <div>
+        <span class="eyebrow">On the Store Floor</span>
+        <h2>Natural Taglish for frontline managers.</h2>
+        <p class="muted">Branch managers don't have time to navigate complex dashboards. They message Kuya naturally and receive structured, actionable proposals in return.</p>
+        
+        <ul class="checklist">
+          <li>
+            <span class="checklist-icon">✓</span>
+            <span>Understands Filipino grocery vernacular: <i>ubos</i>, <i>pa-order</i>, <i>di pumasok</i>, <i>bukas</i>.</span>
+          </li>
+          <li>
+            <span class="checklist-icon">✓</span>
+            <span>Filters out tool execution noise; delivers concise, decision-ready answers.</span>
+          </li>
+          <li>
+            <span class="checklist-icon">✓</span>
+            <span>Strict human-in-the-loop guarantee: no PO or shift change is written without your explicit approval.</span>
+          </li>
+        </ul>
+
+        <div style="margin-top:28px">
+          <div class="caption" style="margin-bottom:8px">Test a live floor scenario:</div>
+          <div class="phone-chips">
+            <button type="button" class="phone-chip-trigger" data-scenario="water">Bottled water out of stock</button>
+            <button type="button" class="phone-chip-trigger" data-scenario="shift">Cashier absence call-in</button>
+            <button type="button" class="phone-chip-trigger" data-scenario="risk">Network risk check</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- iPhone Frame with Interactive Telegram Simulator -->
+      <div class="phone-mockup" id="phone-demo">
+        <div class="phone-speaker-island"></div>
+        <div class="phone-screen">
+          <div class="phone-header">
+            <img class="phone-avatar" src="/assets/kuya-hermes-avatar-160.png" alt="Kuya Hermes Bot">
+            <div class="phone-title">
+              <b>Kuya Hermes</b>
+              <span>online · Suki Mart Ops</span>
+            </div>
+          </div>
+          <div class="phone-messages"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Capabilities Section -->
+  <section id="features">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">What Kuya does</span>
-        <h2>From "may problema" to "naayos na" in one chat.</h2>
+        <span class="eyebrow">Core Capabilities</span>
+        <h2>From alert to resolution in one message.</h2>
       </div>
+
       <div class="features">
-        <div class="card feature"><div class="ico"><i data-icon="fullSweep"></i></div><div><h3>Network sweep</h3><p>Ranks all 12 branches by risk in under a second: stockouts with no PO, duplicate POs, short shifts, unanswered tickets, late deliveries. <code>network_sweep</code></p></div></div>
-        <div class="card feature"><div class="ico"><i data-icon="branchPulse"></i></div><div><h3>Branch pulse</h3><p>One look at a branch's stock, staffing for the next 2 days, tickets and deliveries. Branches without delivery are never told to fix deliveries. <code>branch_pulse</code></p></div></div>
-        <div class="card feature"><div class="ico"><i data-icon="duplicate"></i></div><div><h3>Duplicate-PO guard</h3><p>Checks for an open purchase order <b>before</b> reordering, and judges urgency by the supplier's <b>real</b> lead time, not its promise. <code>check_restock</code> <code>create_purchase_order</code></p></div></div>
-        <div class="card feature"><div class="ico"><i data-icon="shiftCover"></i></div><div><h3>Shift cover in one message</h3><p>"Di pumasok si John bukas." Kuya finds the shift and proposes the most reliable free colleague, then books it after you say yes. <code>find_shift_cover</code> <code>assign_cover</code></p></div></div>
+        <div class="card feature">
+          <div class="ico"><i data-icon="fullSweep"></i></div>
+          <div>
+            <h3>Network Risk Sweep</h3>
+            <p>Ranks all 12 branches by risk in under a second: unreplenished stockouts, duplicate purchase orders, short shifts, and overdue customer tickets. <code>network_sweep</code></p>
+          </div>
+        </div>
+
+        <div class="card feature">
+          <div class="ico"><i data-icon="branchPulse"></i></div>
+          <div>
+            <h3>Branch Pulse Telemetry</h3>
+            <p>Unified diagnostic view of branch inventory, next-48-hour staffing schedule, and delivery reliability. Walk-in-only branches skip delivery checks automatically. <code>branch_pulse</code></p>
+          </div>
+        </div>
+
+        <div class="card feature">
+          <div class="ico"><i data-icon="duplicate"></i></div>
+          <div>
+            <h3>Duplicate-PO Protection</h3>
+            <p>Prevents redundant purchase orders and judges restock urgency using empirical historical supplier delivery times rather than vendor promises. <code>check_restock</code></p>
+          </div>
+        </div>
+
+        <div class="card feature">
+          <div class="ico"><i data-icon="shiftCover"></i></div>
+          <div>
+            <h3>Absence Coverage Matching</h3>
+            <p>When an employee calls in sick, Kuya finds the open shift and identifies the most reliable eligible colleague based on attendance history. <code>find_shift_cover</code></p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- DEMO -->
+  <!-- Call to Action Banner -->
   <section style="padding-top:20px">
-    <div class="wrap demo">
-      <div>
-        <span class="eyebrow">On the store floor</span>
-        <h2 style="font-size:clamp(28px,4vw,40px);margin:10px 0 12px">Text it like you'd text your kuya.</h2>
-        <p class="muted" style="font-size:17px;margin:0">Branch managers are busy. They don't open dashboards; they send a quick Taglish message and get back a fix to approve.</p>
-        <ul class="checklist">
-          <li>Understands Taglish: <i>ubos</i>, <i>pa-order</i>, <i>di pumasok</i>, <i>bukas</i></li>
-          <li>Only final answers on Telegram, with no tool noise</li>
-          <li>Nothing changes in the system until you say <b>oo</b></li>
-        </ul>
-      </div>
-      <div class="phone">
-        <div class="phone-top"><img src="/assets/kuya-hermes-avatar-160.png" alt=""><div><b>Kuya Hermes</b><span>online</span></div></div>
-        <div class="msg me">di pumasok si John Soriano bukas 7am sa Alabang 😩</div>
-        <div class="msg bot">Nakita ko: <b>cashier shift Oct 1, 07:00–11:00</b>.<br>Best cover: <b>Rowena Tomas</b> (1 absence in 8 weeks, free that slot).<br>I-book ko na ba?
-          <div class="actions"><span>Oo ✅</span><span>Iba na lang</span></div></div>
-        <div class="msg me">oo</div>
-        <div class="msg bot">✅ Done! Rowena covers John's 7–11 AM shift bukas sa ALB.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section style="padding-top:10px">
     <div class="wrap">
       <div class="card cta-band">
         <div>
-          <h2>See it on real data.</h2>
-          <p class="muted" style="margin:6px 0 0">Open the live dashboard and ask Kuya anything about a branch.</p>
+          <h2>Explore the Live Operations Console</h2>
+          <p class="muted" style="margin-top:6px">Access branch pulses, risk rankings, and interact directly with Kuya Hermes.</p>
         </div>
         <div class="ctas" style="display:flex;gap:12px;flex-wrap:wrap">
-          <a class="btn btn-gold btn-lg" href="/dashboard"><i data-icon="fullSweep"></i> Open live dashboard</a>
-          <a class="btn btn-lg" href="https://github.com/polsalarm/kuya-hermes" target="_blank" rel="noopener">View on GitHub</a>
+          <a class="btn btn-accent btn-lg" href="/dashboard"><i data-icon="fullSweep"></i> Open Live Dashboard</a>
+          <a class="btn btn-lg" href="https://github.com/polsalarm/kuya-hermes" target="_blank" rel="noopener">View Repository</a>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- Footer -->
   <footer>
     <div class="wrap">
-      <span>Kuya Hermes · built on <a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener">Hermes Agent</a> for CAMP / RUN 2026 (Avtica × DEVCON).</span>
-      <span>Suki Mart and all data are fictional.</span>
+      <span>Kuya Hermes · Retail Branch-Ops Copilot · Built with <a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener">Hermes Agent</a> for CAMP / RUN 2026.</span>
+      <span>Suki Mart operational sandbox (12 branches).</span>
     </div>
   </footer>
 
   <script type="module">
-    import { hydrateIcons } from '/static/kuya.js'
+    import { hydrateIcons, setupTactileFeedback, mountFloorDemo, countUp } from '/static/kuya.js'
     hydrateIcons()
-    fetch('/api/overview').then((r) => r.json()).then((o) => {
-      const set = (k, v) => document.querySelectorAll(`[data-k="${k}"]`).forEach((el) => { el.textContent = v })
-      set('out_of_stock', o.out_of_stock)
-      set('duplicate_po_pairs', o.duplicate_po_pairs)
-      set('tickets_never_answered', o.tickets_never_answered)
-      set('lead', `${o.worst_supplier.actual}d vs ${o.worst_supplier.promised}d`)
-      set('lead_sub', o.worst_supplier.name)
-    }).catch(() => {})
+    setupTactileFeedback()
+    mountFloorDemo(document.getElementById('phone-demo'))
+
+    // Fetch live overview statistics
+    fetch('/api/overview')
+      .then((r) => r.json())
+      .then((o) => {
+        const set = (k, v) => document.querySelectorAll(`[data-k="${k}"]`).forEach((el) => {
+          if (typeof v === 'number') countUp(el, v, 600)
+          else el.textContent = v
+        })
+        if (o.out_of_stock != null) set('out_of_stock', o.out_of_stock)
+        if (o.duplicate_po_pairs != null) set('duplicate_po_pairs', o.duplicate_po_pairs)
+        if (o.tickets_never_answered != null) set('tickets_never_answered', o.tickets_never_answered)
+        if (o.worst_supplier) {
+          set('lead', `${o.worst_supplier.actual}d vs ${o.worst_supplier.promised}d`)
+          set('lead_sub', o.worst_supplier.name)
+        }
+      })
+      .catch(() => {})
   </script>
 </body>
 </html>

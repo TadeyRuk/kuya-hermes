@@ -73,11 +73,12 @@ def _ask_kuya(body: dict) -> dict:
     `conversation` keeps multi-turn context server-side, so a confirm
     ("oo, i-file mo na") lands in the same session as the proposal.
     """
+    import urllib.error
     import urllib.request
 
     message = str(body.get("message", "")).strip()[:2000]
     if not message:
-        return {"error": "empty message"}
+        return {"error": "Message cannot be empty. Please enter a question or command.", "_status": 400}
     conversation = str(body.get("conversation") or "kuya-web")[:80]
     req = urllib.request.Request(
         f"{HERMES_API}/v1/responses",
@@ -87,12 +88,30 @@ def _ask_kuya(body: dict) -> dict:
         method="POST",
     )
     if not _CHAT_LOCK.acquire(timeout=5):
-        return {"error": "Kuya is busy with other questions. Try again in a minute."}
+        return {"error": "Kuya is currently busy handling another request. Please try again in a few seconds.", "_status": 429}
     try:
         with urllib.request.urlopen(req, timeout=600) as r:
             data = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        err_body = ""
+        try:
+            err_body = e.read().decode("utf-8", errors="replace")
+            err_json = json.loads(err_body)
+            if isinstance(err_json, dict) and "error" in err_json:
+                err_body = err_json["error"]
+        except Exception:
+            pass
+        detail = f": {err_body}" if err_body else f" (HTTP {e.code})"
+        return {"error": f"Hermes gateway returned an error{detail}. Is the agent configured correctly?", "_status": 502}
+    except urllib.error.URLError as e:
+        return {"error": f"Cannot connect to Hermes gateway at {HERMES_API}: {e.reason}. Ensure the agent gateway is running.", "_status": 502}
+    except TimeoutError:
+        return {"error": "Kuya response timed out. The agent gateway took too long to answer.", "_status": 504}
     finally:
         _CHAT_LOCK.release()
+
+    if isinstance(data, dict) and data.get("error"):
+        return {"error": str(data["error"]), "_status": 500}
 
     text, tools = [], []
     for item in data.get("output", []):
@@ -115,8 +134,10 @@ def _ask_kuya(body: dict) -> dict:
             for c in item.get("content", []):
                 if c.get("type") == "output_text":
                     text.append(c.get("text", ""))
-    return {"reply": "\n\n".join(t for t in text if t).strip(), "tools": tools, "id": data.get("id")}
-
+    reply = "\n\n".join(t for t in text if t).strip()
+    if not reply and not tools:
+        reply = "(No response received from agent)"
+    return {"reply": reply, "tools": tools, "id": data.get("id")}
 
 STATIC = os.path.join(ROOT, "static")
 ASSETS = os.path.join(REPO, "assets")
@@ -128,30 +149,37 @@ PAGES = {"/": "index.html", "/dashboard": "dashboard.html"}
 def _overview() -> dict:
     """Network totals for the landing page's live problem stats."""
     sweep = suki.network_sweep()
-    rows = sweep["branches"]
-    dup_pairs = suki.query(
+    rows = sweep.get("branches", [])
+    dup_res = suki.query(
         "SELECT COUNT(*) AS n FROM (SELECT 1 FROM purchase_orders "
         "WHERE status IN ('pending','in_transit','partially_received') "
         "GROUP BY branch_id, product_id HAVING COUNT(*) > 1)"
-    )[0]["n"]
-    oos = suki.query("SELECT COUNT(*) AS n FROM inventory WHERE on_hand = 0")[0]["n"]
-    unanswered = suki.query(
+    )
+    dup_pairs = dup_res[0]["n"] if dup_res else 0
+
+    oos_res = suki.query("SELECT COUNT(*) AS n FROM inventory WHERE on_hand = 0")
+    oos = oos_res[0]["n"] if oos_res else 0
+
+    unanswered_res = suki.query(
         "SELECT COUNT(*) AS n FROM support_tickets WHERE status IN ('open','pending') AND first_response_at IS NULL"
-    )[0]["n"]
-    lead = suki.query(
+    )
+    unanswered = unanswered_res[0]["n"] if unanswered_res else 0
+
+    lead_res = suki.query(
         "SELECT s.name, s.promised_lead_time_days AS promised, "
         "ROUND(AVG(julianday(po.received_at) - julianday(po.ordered_at)), 1) AS actual "
         "FROM purchase_orders po JOIN suppliers s ON s.id = po.supplier_id "
         "WHERE po.received_at IS NOT NULL GROUP BY s.id "
         "ORDER BY actual - s.promised_lead_time_days DESC LIMIT 1"
-    )[0]
+    )
+    lead = lead_res[0] if lead_res else {"name": "N/A", "promised": 0, "actual": 0}
     return {
         "as_of": "2026-09-30",
         "out_of_stock": oos,
         "duplicate_po_pairs": dup_pairs,
         "tickets_never_answered": unanswered,
         "worst_supplier": lead,
-        "worst_branch": sweep["worst"],
+        "worst_branch": sweep.get("worst", "ALB"),
         "branches": len(rows),
     }
 
@@ -201,12 +229,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def _file(self, path: str) -> None:
         if not os.path.isfile(path):
-            return self._json({"error": "not found"}, 404)
+            return self._json({"error": f"File not found: {os.path.basename(path)}"}, 404)
         ctype = mimetypes.guess_type(path)[0] or "application/octet-stream"
         if ctype.startswith("text/") or ctype in ("application/javascript",):
             ctype += "; charset=utf-8"
-        with open(path, "rb") as f:
-            self._send(200, f.read(), ctype)
+        try:
+            with open(path, "rb") as f:
+                self._send(200, f.read(), ctype)
+        except (IOError, OSError) as e:
+            sys.stderr.write(f"[kuya-web] File read error {path}: {e}\n")
+            self._json({"error": f"Error reading file: {e}"}, 500)
 
     def do_GET(self) -> None:  # noqa: N802 (http.server API)
         if not self._authorized():
@@ -218,14 +250,21 @@ class Handler(BaseHTTPRequestHandler):
             if path in API:
                 return self._json(API[path](path))
             if path.startswith("/api/pulse/"):
-                return self._json(suki.branch_pulse(path.rsplit("/", 1)[-1]))
+                branch_code = path.rsplit("/", 1)[-1]
+                if not branch_code:
+                    return self._json({"error": "Missing branch code in URL"}, 400)
+                return self._json(suki.branch_pulse(branch_code))
             if path.startswith("/assets/"):
                 return self._file(os.path.join(ASSETS, os.path.basename(path)))
             if path.startswith("/static/"):
                 return self._file(os.path.join(STATIC, os.path.basename(path)))
             return self._json({"error": "not found"}, 404)
         except ValueError as e:  # unknown branch code etc.
+            sys.stderr.write(f"[kuya-web] GET {path} client error: {e}\n")
             return self._json({"error": str(e)}, 400)
+        except Exception as e:
+            sys.stderr.write(f"[kuya-web] GET {path} internal error: {e}\n")
+            return self._json({"error": f"Internal server error: {e}"}, 500)
 
     def do_POST(self) -> None:  # noqa: N802 (http.server API)
         if not self._authorized():
@@ -235,11 +274,17 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": "not found"}, 404)
         try:
             length = min(int(self.headers.get("Content-Length") or 0), 20000)
-            body = json.loads(self.rfile.read(length) or b"{}")
-            return self._json(_ask_kuya(body))
+            raw = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                body = json.loads(raw or b"{}")
+            except (json.JSONDecodeError, ValueError) as e:
+                return self._json({"error": f"Invalid JSON payload: {e}"}, 400)
+            res = _ask_kuya(body)
+            code = res.pop("_status", 200) if isinstance(res, dict) else 200
+            return self._json(res, code)
         except Exception as e:  # Hermes down, timeout, bad JSON — show it in the chat
+            sys.stderr.write(f"[kuya-web] POST /api/chat error: {e}\n")
             return self._json({"error": f"Kuya is unavailable: {e}. Is the Hermes gateway running?"}, 502)
-
     def log_message(self, fmt, *args) -> None:
         sys.stderr.write("[kuya-web] " + (fmt % args) + "\n")
 

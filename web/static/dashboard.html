@@ -3,21 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kuya Hermes HQ · Live dashboard</title>
+  <title>Kuya Hermes HQ · Live Operations Console</title>
   <link rel="icon" href="/assets/kuya-hermes-avatar-160.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
-  <style>.wrap.wide { width: min(1400px, 100% - clamp(32px, 6vw, 120px)); }</style>
+  <style>
+    .wrap.wide { width: min(1380px, 100% - clamp(24px, 5vw, 96px)); }
+  </style>
 </head>
 <body>
+  <!-- Navigation Header (§12 Translucent Glass Chrome) -->
   <nav class="nav">
     <div class="wrap wide">
-      <a class="brand" href="/"><img src="/assets/kuya-hermes-avatar-160.png" alt=""><span>Kuya Hermes<small>for Suki Mart</small></span></a>
+      <a class="brand" href="/">
+        <img src="/assets/kuya-hermes-avatar-160.png" alt="Kuya Hermes">
+        <div class="brand-title">
+          <span>Kuya Hermes HQ</span>
+          <small>Suki Mart Copilot</small>
+        </div>
+      </a>
       <div class="nav-links">
         <a href="/">Overview</a>
-        <a href="/dashboard" style="color:var(--text)">Live dashboard</a>
-        <a class="btn" href="https://t.me/kuyahermes_bot" target="_blank" rel="noopener"><i data-icon="telegram"></i> Telegram</a>
+        <a href="/dashboard" class="active">Live Dashboard</a>
+        <a class="btn btn-sm" href="https://t.me/kuyahermes_bot" target="_blank" rel="noopener">
+          <i data-icon="telegram"></i> Telegram
+        </a>
       </div>
     </div>
   </nav>
@@ -25,145 +34,251 @@
   <main class="wrap wide dash">
     <div class="dash-grid">
       <div class="dash-main">
+        <!-- Dashboard Header -->
         <header class="dash-head">
           <div class="who">
-            <img src="/assets/kuya-hermes-avatar-160.png" alt="Kuya Hermes">
+            <img src="/assets/kuya-hermes-avatar-160.png" alt="Kuya Hermes Avatar">
             <div>
-              <h1>Kuya Hermes HQ</h1>
-              <div class="muted">Suki Mart branch-ops copilot · 12 branches · data as of Sep 30, 2026</div>
+              <h1>Kuya Hermes Operations Console</h1>
+              <div class="caption">Suki Mart Branch-Ops Copilot · 12 Metro Manila Branches · Sandbox as of Sep 30, 2026</div>
             </div>
           </div>
-          <div class="pills">
-            <span class="pill" id="pill-data"><span class="dot"></span> data: loading…</span>
-            <span class="pill"><i data-icon="telegram"></i> Telegram: field managers</span>
-            <span class="pill"><i data-icon="desktop"></i> Hermes Desktop: HQ</span>
+          <div class="dash-pills">
+            <span class="pill" id="pill-data"><span class="dot"></span> data: live</span>
+            <span class="pill"><i data-icon="telegram" style="width:13px;height:13px"></i> Telegram: floor managers</span>
+            <span class="pill"><i data-icon="desktop" style="width:13px;height:13px"></i> Hermes Desktop: HQ</span>
           </div>
         </header>
 
-        <section class="card sweep" style="padding:20px">
-          <div class="left">
-            <div class="ico"><i data-icon="fullSweep" class="icon" style="width:28px;height:28px"></i></div>
+        <!-- Full Network Sweep Card -->
+        <section class="card sweep-card">
+          <div class="sweep-left">
+            <div class="sweep-ico"><i data-icon="fullSweep" style="width:24px;height:24px"></i></div>
             <div>
-              <h2>Run full sweep</h2>
-              <div class="muted">Kuya scores all 12 branches, drills into the worst, and drafts fixes. Nothing is written until you approve.</div>
+              <h2>Run full network sweep</h2>
+              <div class="muted" style="font-size:13.5px">Kuya scores all 12 branches, investigates the highest risk areas, and drafts purchase orders or shift covers for your approval.</div>
             </div>
           </div>
-          <button class="btn btn-gold btn-lg" id="sweep-btn"><i data-icon="fullSweep"></i> Run full sweep</button>
+          <button class="btn btn-accent btn-lg" id="sweep-btn" type="button">
+            <i data-icon="play" style="width:14px;height:14px"></i> Run full sweep
+          </button>
         </section>
 
+        <!-- KPI Metrics Grid -->
         <section class="kpis" id="kpis">
-          <div class="card kpi"><div class="skeleton"></div></div><div class="card kpi"><div class="skeleton"></div></div>
-          <div class="card kpi"><div class="skeleton"></div></div><div class="card kpi"><div class="skeleton"></div></div>
-          <div class="card kpi"><div class="skeleton"></div></div>
+          <div class="card kpi">
+            <div class="k-label"><i data-icon="fixStockouts"></i>Stockouts · no PO</div>
+            <div class="k-num hot">47</div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><i data-icon="duplicate"></i>Duplicate-PO items</div>
+            <div class="k-num">12</div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><i data-icon="shiftCover"></i>Staff short tomorrow</div>
+            <div class="k-num">4</div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><i data-icon="fieldReport"></i>Tickets unanswered</div>
+            <div class="k-num hot">46</div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><i data-icon="lateDelivery"></i>Late deliveries (7d)</div>
+            <div class="k-num">12</div>
+          </div>
         </section>
 
-        <section style="padding:0">
-          <div class="label-row"><span>Branches · risk ranking</span><span>click a branch for its live pulse</span></div>
+        <!-- Branch Grid Section -->
+        <section>
+          <div class="label-row">
+            <span>Branch Network · Risk Ranking</span>
+            <span>Click any branch for live diagnostic pulse</span>
+          </div>
           <div class="branches" id="branches"></div>
         </section>
 
-        <section style="padding:0">
-          <div class="label-row"><span id="sel-label">ALB · Alabang</span><span id="sel-meta"></span></div>
+        <!-- Selected Branch Pulse & Actions -->
+        <section>
+          <div class="label-row">
+            <span id="sel-label" style="color:var(--text);font-weight:700">ALB · Alabang</span>
+            <span id="sel-meta">2 stock alerts · 1 out of stock</span>
+          </div>
           <div class="actions-row" id="actions"></div>
-          <div class="card pulse" id="pulse" style="margin-top:12px"><div class="skeleton" style="height:120px;grid-column:1/-1"></div></div>
+          <div class="card pulse" id="pulse" style="margin-top:12px">
+            <div>
+              <h3><span>Stock Alerts</span><span class="caption">2 total alerts</span></h3>
+              <div class="row">
+                <span>Bottled Water 6L</span>
+                <span class="chips"><span class="caption">0 on hand</span><span class="chip red">no PO</span></span>
+              </div>
+              <div class="row">
+                <span>San Miguel Pale Pilsen 330ml</span>
+                <span class="chips"><span class="caption">3 on hand</span><span class="chip amber">⚠️ 2 POs</span></span>
+              </div>
+            </div>
+            <div>
+              <h3><span>Staffing Schedule · Next 48 Hours</span></h3>
+              <div class="row">
+                <span>10-01 · morning</span>
+                <span class="chip amber">2/3 scheduled · short 1</span>
+              </div>
+              <h3 style="margin-top:20px"><span>Frontline Service & Delivery</span></h3>
+              <div class="chips">
+                <span class="chip">3 open tickets</span>
+                <span class="chip red">2 unanswered</span>
+                <span class="chip">1 &gt; 7 days old</span>
+                <span class="chip">2 late · 0 failed</span>
+              </div>
+            </div>
+          </div>
         </section>
-
-        <div class="card note"><i data-icon="shield" class="icon" style="color:var(--gold)"></i>
-          <span>Numbers on this page come straight from <b>store.db</b> through the same functions as the <b>suki MCP server</b>. Chat answers come from the real <b>Hermes agent</b> running the <b>kuya-hermes-ops</b> skill. Every write needs your yes.</span>
+        <!-- Architectural Safety Note -->
+        <div class="card note">
+          <i data-icon="shield" class="icon" style="color:var(--accent);width:20px;height:20px"></i>
+          <span>Data reflects real Suki Mart records from <code>store.db</code> queried via deterministic <code>suki</code> MCP tools. Chat responses are processed by the real <b>Hermes Agent</b> with the <code>kuya-hermes-ops</code> skill. No write action occurs without explicit confirmation.</span>
         </div>
       </div>
 
+      <!-- Chat Pane (§12 Translucent Sidebar) -->
       <aside class="card chat" id="chat"></aside>
     </div>
   </main>
 
   <script type="module">
-    import { icon, hydrateIcons, esc, mountChat } from '/static/kuya.js'
-
-    const NAMES = { ALB: 'Alabang', BGC: 'BGC High Street', CUB: 'Cubao', ERM: 'Ermita', KAT: 'Katipunan', KPT: 'Kapitolyo',
-      MAN: 'Mandaluyong Shaw', MKN: 'Marikina', MKT: 'Makati Legazpi', ORT: 'Ortigas Center', PQE: 'Parañaque BF', TMR: 'Tomas Morato' }
+    import { icon, hydrateIcons, esc, mountChat, setupTactileFeedback, countUp } from '/static/kuya.js'
+    const NAMES = {
+      ALB: 'Alabang', BGC: 'BGC High Street', CUB: 'Cubao', ERM: 'Ermita', 
+      KAT: 'Katipunan', KPT: 'Kapitolyo', MAN: 'Mandaluyong Shaw', MKN: 'Marikina', 
+      MKT: 'Makati Legazpi', ORT: 'Ortigas Center', PQE: 'Parañaque BF', TMR: 'Tomas Morato'
+    }
     const NO_DELIVERY = new Set(['ERM', 'MAN'])
+    
+    setupTactileFeedback()
     const chat = mountChat(document.getElementById('chat'))
     let selected = 'ALB'
     let sweep = null
 
-    const tone = (s, max) => { const r = s / max; return r >= .66 ? 'high' : r >= .33 ? 'med' : 'low' }
+    const tone = (s, max) => { 
+      const r = s / max
+      return r >= .66 ? 'high' : r >= .33 ? 'med' : 'low' 
+    }
     const getJSON = (u) => fetch(u).then((r) => r.json())
 
     function renderKpis(rows) {
       const sum = (k) => rows.reduce((a, r) => a + (+r[k] || 0), 0)
       const tiles = [
-        ['fixStockouts', 'Out of stock · no PO', sum('out_of_stock_no_po'), true],
-        ['duplicate', 'Duplicate-PO items', sum('duplicate_po_items')],
-        ['shiftCover', 'Staff short tomorrow', sum('staff_short_tomorrow')],
-        ['fieldReport', 'Tickets never answered', sum('tickets_never_answered'), true],
-        ['lateDelivery', 'Late/failed deliveries · 7d', sum('late_or_failed_deliveries_7d')]
+        ['fixStockouts', 'Stockouts · no PO', sum('out_of_stock_no_po'), true],
+        ['duplicate', 'Duplicate-PO items', sum('duplicate_po_items'), false],
+        ['shiftCover', 'Staff short tomorrow', sum('staff_short_tomorrow'), false],
+        ['fieldReport', 'Tickets unanswered', sum('tickets_never_answered'), true],
+        ['lateDelivery', 'Late deliveries (7d)', sum('late_or_failed_deliveries_7d'), false]
       ]
       document.getElementById('kpis').innerHTML = tiles.map(([ic, label, v, hot]) =>
-        `<div class="card kpi"><div class="k-label">${icon(ic)}${label}</div><div class="k-num ${hot && v ? 'red' : ''}">${v}</div></div>`).join('')
+        `<div class="card kpi">
+          <div class="k-label">${icon(ic)}${label}</div>
+          <div class="k-num ${hot && v ? 'hot' : ''}">${v}</div>
+        </div>`).join('')
+      document.querySelectorAll('#kpis .k-num').forEach((el) => {
+        const val = parseInt(el.textContent, 10)
+        if (!isNaN(val)) countUp(el, val, 500)
+      })
     }
-
     function renderBranches() {
       const rows = sweep ? sweep.branches : Object.keys(NAMES).map((c) => ({ branch: c, risk_score: 0 }))
       const max = Math.max(1, ...rows.map((r) => r.risk_score))
       document.getElementById('branches').innerHTML = rows.map((r, i) => {
         const t = tone(r.risk_score, max)
-        return `<button class="card branch ${r.branch === selected ? 'sel' : ''}" data-code="${r.branch}">
+        const isSel = r.branch === selected
+        return `<button type="button" class="card branch ${isSel ? 'sel' : ''}" data-code="${r.branch}">
           ${icon('store')}
-          <span class="b-main"><span class="b-code">${r.branch} ${i === 0 && sweep ? '🔥' : ''}</span>
-            <span class="b-name">${esc(NAMES[r.branch])}${NO_DELIVERY.has(r.branch) ? ' · no delivery' : ''}</span></span>
+          <span class="b-main">
+            <span class="b-code">${r.branch} ${i === 0 && sweep ? '🔥' : ''}</span>
+            <span class="b-name">${esc(NAMES[r.branch])}${NO_DELIVERY.has(r.branch) ? ' · no delivery' : ''}</span>
+          </span>
           ${sweep ? `<span class="b-risk"><div class="b-score tone-${t}">${r.risk_score}</div><span class="badge ${t}">${t.toUpperCase()}</span></span>` : ''}
         </button>`
       }).join('')
-      document.querySelectorAll('.branch').forEach((b) => b.addEventListener('click', () => select(b.dataset.code)))
+
+      document.querySelectorAll('.branch').forEach((b) => {
+        b.addEventListener('click', () => select(b.dataset.code))
+      })
     }
 
     function renderActions() {
       const n = `${selected} (${NAMES[selected]})`
       const acts = [
-        ['branchPulse', 'Branch pulse', 'stock, staffing, tickets, deliveries', `kumusta ang ${n}? bigyan mo ako ng branch pulse`],
-        ['fixStockouts', 'Fix stockouts', 'checks open POs first', `Fix stockouts at ${n}: check each alert, skip anything with an open PO, and draft purchase orders for my approval.`],
-        ['shiftCover', 'Cover shift gaps', 'next two days vs targets', `Cover the shift gaps at ${n} for the next two days and propose the most reliable cover for my approval.`]
+        ['branchPulse', 'Branch Pulse', 'Stock, staffing, tickets, deliveries', `kumusta ang ${n}? bigyan mo ako ng branch pulse`],
+        ['fixStockouts', 'Fix Stockouts', 'Checks open POs first', `Fix stockouts at ${n}: check each alert, skip anything with an open PO, and draft purchase orders for my approval.`],
+        ['shiftCover', 'Cover Shift Gaps', 'Next two days vs schedule targets', `Cover the shift gaps at ${n} for the next two days and propose the most reliable cover for my approval.`]
       ]
       document.getElementById('actions').innerHTML = acts.map(([ic, t, s, p]) =>
-        `<button class="card action" data-prompt="${esc(p)}"><span class="a-ico">${icon(ic)}</span><span><b>${t}</b><small>${s}</small></span><span class="chev">${icon('arrow')}</span></button>`).join('')
-      document.querySelectorAll('.action').forEach((b) => b.addEventListener('click', () => chat.ask(b.dataset.prompt)))
+        `<button type="button" class="card action" data-prompt="${esc(p)}">
+          <span class="a-ico">${icon(ic)}</span>
+          <span><b>${t}</b><small>${s}</small></span>
+          <span class="chev">${icon('arrow')}</span>
+        </button>`).join('')
+
+      document.querySelectorAll('.action').forEach((b) => {
+        b.addEventListener('click', () => chat.ask(b.dataset.prompt))
+      })
     }
 
     async function renderPulse() {
       const box = document.getElementById('pulse')
-      box.innerHTML = '<div class="skeleton" style="height:120px;grid-column:1/-1"></div>'
-      const p = await getJSON(`/api/pulse/${selected}`)
-      const alerts = (p.stock_alerts || []).slice(0, 6)
-      const gaps = (p.shift_gaps_next_2_days || []).slice(0, 5)
-      const t = p.tickets || {}
-      const d = p.deliveries_last_7d
-      document.getElementById('sel-meta').textContent = `${p.stock_alerts_total} stock alerts · ${p.out_of_stock} out of stock`
-      box.innerHTML = `
-        <div>
-          <h3><span>Stock alerts</span><span class="muted">${p.stock_alerts_total} total</span></h3>
-          ${alerts.length ? alerts.map((s) => `<div class="row"><span>${esc(s.product)}</span><span class="chips">
-            <span class="muted" style="font-size:12px">${s.on_hand} on hand</span>
-            ${s.open_po ? `<span class="chip ${s.duplicate_open_pos ? 'amber' : ''}">${s.duplicate_open_pos ? `⚠️ ${s.duplicate_open_pos + 1} POs` : 'PO open'}</span>` : '<span class="chip red">no PO</span>'}
-          </span></div>`).join('') : '<div class="empty">No stock alerts 🎉</div>'}
-        </div>
-        <div>
-          <h3><span>Staffing · next 2 days</span></h3>
-          ${gaps.length ? gaps.map((g) => `<div class="row"><span>${g.date.slice(5)} · ${g.block}</span><span class="chip amber">${g.scheduled}/${g.target} · short ${g.short_by}</span></div>`).join('') : '<div class="row"><span>Fully staffed</span><span class="chip">✅</span></div>'}
-          <h3 style="margin-top:16px"><span>Customers</span></h3>
-          <div class="chips">
-            <span class="chip">💬 ${t.open_tickets || 0} open</span>
-            <span class="chip ${t.never_answered ? 'red' : ''}">🙈 ${t.never_answered || 0} never answered</span>
-            <span class="chip">⏰ ${t.older_than_7d || 0} &gt; 7 days</span>
-            <span class="chip">🛵 ${typeof d === 'object' && d ? `${d.late || 0} late · ${d.failed || 0} failed` : 'no delivery'}</span>
+      // Visual transition hint (§3, §8)
+      box.classList.add('pulse-animating')
+      
+      try {
+        const p = await getJSON(`/api/pulse/${selected}`)
+        const alerts = (p.stock_alerts || []).slice(0, 6)
+        const gaps = (p.shift_gaps_next_2_days || []).slice(0, 5)
+        const t = p.tickets || {}
+        const d = p.deliveries_last_7d
+        
+        document.getElementById('sel-meta').textContent = `${p.stock_alerts_total} stock alerts · ${p.out_of_stock} out of stock`
+        
+        box.innerHTML = `
+          <div>
+            <h3><span>Stock Alerts</span><span class="caption">${p.stock_alerts_total} total alerts</span></h3>
+            ${alerts.length ? alerts.map((s) => `
+              <div class="row">
+                <span>${esc(s.product)}</span>
+                <span class="chips">
+                  <span class="caption">${s.on_hand} on hand</span>
+                  ${s.open_po 
+                    ? `<span class="chip ${s.duplicate_open_pos ? 'amber' : ''}">${s.duplicate_open_pos ? `⚠️ ${s.duplicate_open_pos + 1} POs` : 'PO open'}</span>` 
+                    : '<span class="chip red">no PO</span>'}
+                </span>
+              </div>`).join('') : '<div class="empty">No stock alerts found</div>'}
           </div>
-        </div>`
+          <div>
+            <h3><span>Staffing Schedule · Next 48 Hours</span></h3>
+            ${gaps.length ? gaps.map((g) => `
+              <div class="row">
+                <span>${g.date.slice(5)} · ${g.block}</span>
+                <span class="chip amber">${g.scheduled}/${g.target} scheduled · short ${g.short_by}</span>
+              </div>`).join('') : '<div class="row"><span>Fully staffed</span><span class="chip green">Optimal</span></div>'}
+            
+            <h3 style="margin-top:20px"><span>Frontline Service & Delivery</span></h3>
+            <div class="chips">
+              <span class="chip">${t.open_tickets || 0} open tickets</span>
+              <span class="chip ${t.never_answered ? 'red' : ''}">${t.never_answered || 0} unanswered</span>
+              <span class="chip">${t.older_than_7d || 0} &gt; 7 days old</span>
+              <span class="chip">${typeof d === 'object' && d ? `${d.late || 0} late · ${d.failed || 0} failed` : 'no delivery service'}</span>
+            </div>
+          </div>`
+      } finally {
+        setTimeout(() => box.classList.remove('pulse-animating'), 120)
+      }
     }
 
     function select(code) {
+      if (selected === code) return
       selected = code
       document.getElementById('sel-label').textContent = `${code} · ${NAMES[code]}`
-      renderBranches(); renderActions(); renderPulse()
+      renderBranches()
+      renderActions()
+      renderPulse()
     }
 
     async function loadSweep() {
@@ -173,13 +288,15 @@
       select(sweep.worst)
     }
 
-    document.getElementById('sweep-btn').addEventListener('click', () =>
-      chat.ask('Run a full network sweep of all Suki Mart branches: rank every branch by risk, then drill into the worst branch with a branch pulse and draft the fixes (purchase orders that are not duplicates, and shift covers) for my approval.'))
-    // After Kuya writes something (PO / cover), refresh the live numbers.
+    document.getElementById('sweep-btn').addEventListener('click', () => {
+      chat.ask('Run a full network sweep of all Suki Mart branches: rank every branch by risk, then drill into the worst branch with a branch pulse and draft the fixes (purchase orders that are not duplicates, and shift covers) for my approval.')
+    })
+
     document.addEventListener('kuya:reply', () => loadSweep())
 
     hydrateIcons()
-    renderBranches(); renderActions()
+    renderBranches()
+    renderActions()
     loadSweep()
   </script>
 </body>
