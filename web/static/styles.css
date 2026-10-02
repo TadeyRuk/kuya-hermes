@@ -1568,12 +1568,14 @@ footer a:hover {
   transform: scale(0.96);
 }
 
-/* Markdown Table */
+/* Markdown Table & Formatting */
 .md-table {
   overflow-x: auto;
   margin: 10px 0;
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .md-table table {
@@ -1583,23 +1585,90 @@ footer a:hover {
 }
 
 .md-table th, .md-table td {
-  padding: 7px 10px;
-  text-align: left;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--stroke);
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .md-table th {
-  color: var(--text-2);
-  font-weight: 600;
+  color: var(--text);
+  font-weight: 700;
   background: var(--surface-2);
   white-space: nowrap;
+  border-bottom: 1px solid var(--stroke-strong);
+}
+
+.md-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.md-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .md-table tr:last-child td {
   border-bottom: 0;
 }
 
+.align-left { text-align: left; }
+.align-center { text-align: center; }
+.align-right { text-align: right; }
+
+/* AI Separator Dividers */
+.ai-divider {
+  width: 100%;
+  height: 1px;
+}
+
+.ai-divider.major {
+  background: rgba(255, 255, 255, 0.20);
+  margin: 14px 0;
+}
+
+.ai-divider.minor {
+  background: rgba(255, 255, 255, 0.09);
+  margin: 10px 0;
+}
+
+/* AI Code Blocks & Quotes */
+.code-block {
+  background: #0f111a;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: 8px 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  margin: 0;
+}
+
+.code-block code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: var(--text-2);
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.ai-quote {
+  border-left: 3px solid var(--accent);
+  padding: 6px 12px;
+  margin: 8px 0;
+  color: var(--text-2);
+  background: rgba(245, 166, 35, 0.06);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 13.5px;
+}
+
+.ai-heading {
+  font-size: 14.5px;
+  font-weight: 700;
+  margin: 12px 0 6px;
+  color: var(--text);
+}
 .tools {
   display: flex;
   flex-wrap: wrap;

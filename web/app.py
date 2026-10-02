@@ -59,7 +59,18 @@ def _playbook() -> str:
     parts.append(
         "You are answering on the public Kuya Hermes website. Only discuss Suki Mart operations "
         "using the suki tools. Refuse anything else briefly and politely. Tools appear as "
-        "mcp__suki__<tool> (same as mcp_suki_<tool> in the playbook)."
+        "mcp__suki__<tool> (same as mcp_suki_<tool> in the playbook).\n\n"
+        "OUTPUT FORMATTING RULES:\n"
+        "- Always format multi-item or comparative data (sweeps, stockout alerts, shift gaps, purchase orders) "
+        "using standard Markdown tables with leading and trailing pipes:\n"
+        "  | Branch | Risk | Stockouts | Dup POs | Staff Short | Tickets | Deliveries |\n"
+        "  |:---|:---|---:|---:|---:|---:|---:|\n"
+        "  | ERM | high | 14 | 2 | 3 | 6 | 4 |\n"
+        "- Use standard separators:\n"
+        "  ━━━━━━━━━━━━━━━━━━━━ (section break)\n"
+        "  ────────────────────── (minor break / before footer)\n"
+        "- Format next actions as a clean numbered list (1., 2., 3.).\n"
+        "- When proposing a purchase order or shift cover, always end with a clear question asking for confirmation (e.g. 'I-file ko na ba?')."
     )
     return "\n\n---\n\n".join(parts)
 

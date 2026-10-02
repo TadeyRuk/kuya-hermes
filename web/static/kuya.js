@@ -244,7 +244,7 @@ export function setupTactileFeedback(root = document) {
   }, { passive: true })
 }
 
-// Markdown renderer with Apple-style structured output
+// Markdown renderer with Apple-style structured output & robust table parser
 export function md(src) {
   const inline = (t) => esc(t)
     .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -256,43 +256,115 @@ export function md(src) {
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    
-    // Markdown table
-    if (/^\s*\|.*\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}/.test(lines[i + 1])) {
-      const cells = (l) => l.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim())
-      let t = '<div class="md-table"><table><thead><tr>' + cells(line).map((c) => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'
+    const trimmed = line.trim()
+    if (!trimmed) continue
+
+    // Code blocks
+    if (trimmed.startsWith('```')) {
+      let code = ''
+      i++
+      while (i < lines.length && !lines[i].trim().startsWith('```')) {
+        code += esc(lines[i]) + '\n'
+        i++
+      }
+      html += '<div class="code-block"><pre><code>' + code + '</code></pre></div>'
+      continue
+    }
+
+    // Separators (Major Unicode ━, Minor Unicode ─, or markdown --- / ===)
+    if (/^[━─\-_=]{3,}$/.test(trimmed)) {
+      const isMajor = /^[━=]{3,}$/.test(trimmed)
+      html += `<div class="ai-divider ${isMajor ? 'major' : 'minor'}"></div>`
+      continue
+    }
+
+    // Robust Markdown Table detection (with or without outer pipes)
+    if (trimmed.includes('|') && i + 1 < lines.length && /^[\s|:-]+$/.test(lines[i + 1]) && lines[i + 1].includes('-')) {
+      const getCells = (row) => {
+        let r = row.trim()
+        if (r.startsWith('|')) r = r.slice(1)
+        if (r.endsWith('|')) r = r.slice(0, -1)
+        return r.split('|').map((c) => c.trim())
+      }
+
+      const headerCells = getCells(line)
+      const delimCells = getCells(lines[i + 1])
+      
+      const aligns = delimCells.map((d) => {
+        const left = d.startsWith(':')
+        const right = d.endsWith(':')
+        if (left && right) return 'center'
+        if (right) return 'right'
+        return 'left'
+      })
+
+      let tableHtml = '<div class="md-table"><table><thead><tr>'
+      headerCells.forEach((h, idx) => {
+        const align = aligns[idx] || 'left'
+        tableHtml += `<th class="align-${align}">${inline(h)}</th>`
+      })
+      tableHtml += '</tr></thead><tbody>'
+
       i += 2
-      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
-        t += '<tr>' + cells(lines[i]).map((c) => `<td>${inline(c)}</td>`).join('') + '</tr>'
+      while (i < lines.length && lines[i].trim().includes('|')) {
+        const rowCells = getCells(lines[i])
+        tableHtml += '<tr>'
+        rowCells.forEach((c, idx) => {
+          const align = aligns[idx] || (isNaN(Number(c.replace(/[^0-9.-]/g, ''))) ? 'left' : 'right')
+          const isNum = align === 'right' || /^[₱$]?[0-9,]+(\.[0-9]+)?(%|d|h)?$/.test(c.trim())
+          tableHtml += `<td class="align-${align}${isNum ? ' tnum' : ''}">${inline(c)}</td>`
+        })
+        tableHtml += '</tr>'
         i++
       }
       i--
-      html += t + '</tbody></table></div>'
-    } else if (/^\s*[-*•]\s+/.test(line)) {
+      tableHtml += '</tbody></table></div>'
+      html += tableHtml
+      continue
+    }
+
+    // Blockquotes
+    if (trimmed.startsWith('>')) {
+      html += `<blockquote class="ai-quote">${inline(trimmed.replace(/^>\s*/, ''))}</blockquote>`
+      continue
+    }
+
+    // Bullet lists
+    if (/^[-*•]\s+/.test(trimmed)) {
       html += '<ul>'
-      while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])) { 
-        html += `<li>${inline(lines[i].replace(/^\s*[-*•]\s+/, ''))}</li>`
+      while (i < lines.length && /^[-*•]\s+/.test(lines[i].trim())) { 
+        html += `<li>${inline(lines[i].trim().replace(/^[-*•]\s+/, ''))}</li>`
         i++ 
       }
       i--
       html += '</ul>'
-    } else if (/^\s*\d+[.)]\s+/.test(line)) {
+      continue
+    }
+
+    // Numbered lists
+    if (/^\d+[.)]\s+/.test(trimmed)) {
       html += '<ol>'
-      while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) { 
-        html += `<li>${inline(lines[i].replace(/^\s*\d+[.)]\s+/, ''))}</li>`
+      while (i < lines.length && /^\d+[.)]\s+/.test(lines[i].trim())) { 
+        html += `<li>${inline(lines[i].trim().replace(/^\d+[.)]\s+/, ''))}</li>`
         i++ 
       }
       i--
       html += '</ol>'
-    } else if (/^#{1,4}\s+/.test(line)) {
-      html += `<h4>${inline(line.replace(/^#+\s+/, ''))}</h4>`
-    } else if (line.trim()) {
-      html += `<p>${inline(line)}</p>`
+      continue
     }
+
+    // Headings
+    if (/^#{1,4}\s+/.test(trimmed)) {
+      const level = trimmed.match(/^#+/)[0].length
+      const tag = 'h' + Math.min(level + 2, 5)
+      html += `<${tag} class="ai-heading">${inline(trimmed.replace(/^#+\s+/, ''))}</${tag}>`
+      continue
+    }
+
+    html += `<p>${inline(trimmed)}</p>`
   }
   return html
 }
-
 // ---------------------------------------------------------------- Chat Widget
 export function mountChat(root, { mascot = '/assets/kuya-hermes-avatar-160.png' } = {}) {
   if (!root) return { ask: () => {} }
