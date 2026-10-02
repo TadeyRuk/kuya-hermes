@@ -26,14 +26,39 @@
 
 **Solution.** Kuya Hermes turns that into one loop: **detect → check → propose → confirm → act**.
 
-| Layer | What we built |
-|---|---|
-| **MCP server** (`mcp-server/server.py`, server name `suki`) | `network_sweep` ranks all 12 branches by risk · `branch_pulse` covers stock, staffing gaps, tickets and deliveries · `check_restock` has a duplicate-PO guard and uses the supplier's *real* lead time · `create_purchase_order` (write, refuses duplicates) · `find_staff_shifts` · `find_shift_cover` ranks the most reliable free colleague · `assign_cover` (write) |
-| **Skill** (`skills/kuya-hermes-ops`) | Workflows for full sweep, branch pulse, fixing stockouts and covering absences. Every write needs an explicit yes. Reads Taglish field reports (*"ubos na ang bottled water sa ALB"*, *"di pumasok si John bukas"*). Fixed output format for the pane |
-| **Desktop plugin** (`desktop-plugin/kuya-hermes-hq`) | A **Kuya Hermes HQ** page in the sidebar: a **▶ Run full sweep** button, 12-branch picker, per-branch actions, and an "Ask Kuya" box. Plus a side pane next to the chat and Ctrl+K commands |
-| **Bonus channel** | The Hermes Telegram gateway. Branch managers report from the floor, and the same skill and MCP answer |
+#### The three layers
 
-**Flow:** HQ page button / Telegram message → `kuya-hermes-ops` skill → `mcp_suki_*` tools → `data/store.db` → answer, then confirmed write → result back in the chat.
+| | Layer | Folder | What it does |
+|:-:|---|---|---|
+| 🔧 | **MCP server**: the hands | `mcp-server/` | 9 Suki Mart tools (listed below) |
+| 📘 | **Skill**: the playbook | `skills/kuya-hermes-ops/` | Chains the tools into workflows and asks before every write |
+| 🖥️ | **Desktop plugin**: the face | `desktop-plugin/kuya-hermes-hq/` | Kuya Hermes HQ page with **▶ Run full sweep** |
+| 💬 | **Telegram**: bonus channel | Hermes gateway | Branch managers report from the floor in Taglish |
+| 🌐 | **Website**: bonus | `web/` | Landing page and live dashboard |
+
+#### MCP tools (`suki` server)
+
+| Tool | What it answers | Type |
+|---|---|:-:|
+| `network_sweep` | Which of the 12 branches needs help most? | 👀 read |
+| `branch_pulse` | How is this branch doing on stock, staff, tickets and deliveries? | 👀 read |
+| `check_restock` | Should we reorder? Checks for open or **duplicate POs** and uses the supplier's **real** lead time | 👀 read |
+| `create_purchase_order` | File a restock PO (refuses duplicates) | ✍️ write |
+| `find_staff_shifts` | Find an absent person's upcoming shift | 👀 read |
+| `find_shift_cover` | Who is the most reliable free colleague to cover? | 👀 read |
+| `assign_cover` | Book the cover and mark the absence | ✍️ write |
+| `list_branches` · `describe_sandbox` | Branch codes and the data model (from the starter kit) | 👀 read |
+
+#### Skill workflows (`kuya-hermes-ops`)
+
+| Workflow | Triggered by | Steps |
+|---|---|---|
+| **Full sweep** | ▶ Run full sweep | sweep → pulse of the worst branch → check restock → propose → ✅ confirm → write |
+| **Branch pulse** | *"kumusta ang Alabang?"* | pulse → rank issues → next actions |
+| **Fix stockouts** | *"ubos na ang bottled water sa ALB"* | check restock (skip open POs) → propose PO → ✅ confirm → create PO |
+| **Cover absence** | *"di pumasok si John bukas, 7am"* | find shift → find cover → propose → ✅ confirm → assign |
+
+**Flow:** HQ button / Telegram message / website chat → `kuya-hermes-ops` skill → `suki` MCP tools → `data/store.db` → answer, then a confirmed write → result back on screen.
 
 ### Run it (Windows)
 ```powershell
