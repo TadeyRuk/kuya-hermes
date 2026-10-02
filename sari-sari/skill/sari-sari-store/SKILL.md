@@ -65,7 +65,55 @@ Optional on `log`: `--price N` (override unit price), `--note "text"`.
 Short and in the owner's language. Include what was logged, the total, and
 whatever changed: stock left, the customer's new balance, or a LOW stock warning.
 
+**Routine log confirmation** (a sale, utang, bayad, or restock you just logged):
+one or two lines — no separators, no table.
+
 Example: *"Nailista ✅ Aling Nena: 3 Pancit Canton (₱54). Utang niya ngayon: ₱54."*
+
+**List outputs** (`inventory`, `utang`, `summary`): headline, ONE blank line, MAJOR
+separator, table, ONE blank line, MINOR separator, scope footer.
+
+1. Headline: one line.
+2. ONE blank line.
+3. MAJOR separator: `━━━━━━━━━━━━━━━━━━━━`
+4. A markdown table with a header row.
+5. ONE blank line.
+6. MINOR separator: `──────────────────────`
+7. Scope footer: `Sari-sari · as of 2026-10-02` (the date the store script reports, or
+   the date the command was run).
+
+Exactly ONE blank line between blocks, never two. Money is always ₱.
+
+**Tables:** at most 8 rows; right-align numeric columns (qty, ₱ amounts). Columns per output:
+
+| Output | Columns |
+|---|---|
+| `inventory` | Item \| Price \| On hand \| Status |
+| `utang` (all) | Customer \| Balance \| Last activity |
+| `utang` (one) | Item \| Qty \| Price \| Date |
+| `summary` | Metric \| Value |
+
+A LOW stock item renders as ⚠️ in the **Status** column.
+
+**Telegram:** markdown tables do not render. A table with 4+ rows goes inside a
+monospace code block (triple backticks); a table with 3 or fewer rows becomes a
+` · `-separated bullet list instead.
+
+**Example** (`utang`, all balances):
+
+```
+Utang ngayon: ₱203 sa 3 suki
+
+━━━━━━━━━━━━━━━━━━━━
+| Customer | Balance | Last activity |
+|---|---:|---|
+| Aling Nena | ₱54 | 2026-10-02 |
+| Mang Jose | ₱99 | 2026-10-01 |
+| Kuya Ben | ₱50 | 2026-09-29 |
+
+──────────────────────
+Sari-sari · as of 2026-10-02
+```
 
 ## Rules
 

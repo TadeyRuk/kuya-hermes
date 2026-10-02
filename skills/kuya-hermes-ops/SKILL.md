@@ -47,8 +47,8 @@ Read `references/data-rules.md` first. Key points:
 ## Workflows
 
 ### S. Full sweep (HQ "Run full sweep" button, "which branch needs help most")
-1. `network_sweep()`. Show the top 5 branches as a table:
-   `Branch | Risk | Out of stock (no PO) | Dup-PO items | Short staff tomorrow | Unanswered tickets | Late/failed 7d`.
+1. `network_sweep()`. Show the top 5 branches using the **sweep** table template in the
+   unified **Output format** section below.
 2. Drill into the worst branch: `branch_pulse(worst)`.
 3. Run workflow B steps 2–3 on its top 3 out-of-stock items (`check_restock` each).
    If it has shift gaps tomorrow, add workflow C steps 1–3 for the biggest gap.
@@ -80,17 +80,80 @@ Read `references/data-rules.md` first. Key points:
    plus one backup. **Ask to confirm.**
 4. Only after a yes, call `assign_cover(shift_id, employee_number)`. Report who covers which shift.
 
-## Output format (Desktop)
+## Output format
 
-1. **Headline:** one line with the single most urgent finding.
-2. **Table:** at most 8 rows. Columns depend on the workflow:
-   - pulse: `Issue | Detail | Data point`
-   - restock: `SKU | Product | On hand | Days cover | Open PO | Action`
-   - cover: `Shift | Absent | Proposed cover | Why`
-3. **Next actions:** at most 3, each tied to a data point.
-4. **Scope line:** `Branch <CODE> · as of 2026-09-30`.
+One house style, two surfaces. **Hermes Desktop (HQ)** gets the full form below;
+**Telegram (branch managers)** gets the short form. The separator tokens and spacing
+rules are shared with `persona-SOUL.md`.
 
-Telegram: the headline plus up to 3 bullets, then the confirm question if a write is pending.
+**MAJOR separator** — section breaks:
+```
+━━━━━━━━━━━━━━━━━━━━
+```
+**MINOR separator** — breaks inside a section, and before the footer:
+```
+──────────────────────
+```
+
+### Rules
+
+1. **Headline:** one line, the single most urgent finding, with the key number/name **bolded**.
+2. Then **ONE blank line, a MAJOR separator, then the body**.
+3. **Exactly ONE blank line between every logical block.** Never two or more blank lines in a row.
+4. **Tables:** real markdown tables with a header row on markdown surfaces (Hermes Desktop),
+   max 8 rows, numeric columns right-aligned.
+5. **Telegram does not render markdown tables:**
+   - ≤3 rows → bullet list with ` · ` between fields.
+   - ≥4 rows → aligned monospace code block (triple backticks).
+6. **Next actions:** numbered, max 3, each tied to a data point.
+7. **Footer**, preceded by a MINOR separator: `Branch <CODE> · as of 2026-09-30`.
+8. Money **₱**. Emoji: ✅ confirmation, ⚠️ warning, 📦 stock, 🧑‍🤝‍🧑 staffing, 🩺 branch pulse.
+9. Routine one-line confirmations do not need separators or a table — do not over-format trivia.
+
+### Table templates (explicit markdown column specs)
+
+- **sweep:** `Branch | Risk | Out of stock (no PO) | Dup-PO items | Short staff tomorrow | Unanswered tickets | Late/failed 7d`
+- **pulse:** `Issue | Detail | Data point`
+- **restock:** `SKU | Product | On hand | Days cover | Open PO | Action`
+- **cover:** `Shift | Absent | Proposed cover | Why`
+
+### Worked example — Hermes Desktop (sweep)
+
+⚠️ **ERM needs help most** — 14 items out of stock, 3 shifts short tomorrow
+
+━━━━━━━━━━━━━━━━━━━━
+
+| Branch | Risk | Out of stock (no PO) | Dup-PO items | Short staff tomorrow | Unanswered tickets | Late/failed 7d |
+|---|---|---:|---:|---:|---:|---:|
+| ERM | high | 14 | 2 | 3 | 6 | 4 |
+| ALB | high | 11 | 1 | 2 | 4 | 2 |
+| ORT | medium | 11 | 3 | 1 | 3 | 1 |
+| BGC | medium | 6 | 4 | 0 | 2 | 0 |
+| MKT | low | 3 | 0 | 1 | 1 | 1 |
+
+──────────────────────
+
+1. File POs for ERM's top 3 stockouts (Visayas Canning Corp., real lead time ~11.3 days).
+2. Cover ERM's 7am shift tomorrow — 3 gaps, 1 qualified cover.
+3. Chase ERM's 6 unanswered tickets, oldest 21 days.
+
+──────────────────────
+
+Branch ERM · as of 2026-09-30
+
+### Worked example — Telegram (short form)
+
+⚠️ **ERM: 14 items ubos** — pinakamalala sa network
+
+━━━━━━━━━━━━━━━━━━━━
+
+• 📦 Bottled Water 1L · 0 on hand · walang PO
+• 🧑‍🤝‍🧑 7am shift bukas · 3 kulang · 1 pwedeng kapalit
+• 🩺 6 tickets · pinakamatagal 21 days · walang sagot
+
+──────────────────────
+
+I-file ko na ba ang PO para sa top 3? ✅
 
 ## Pitfalls
 
