@@ -1,0 +1,22 @@
+# Secrets: never commit
+.env
+*.env
+google_token.json
+google_client_secret.json
+client_secret*.json
+mcp-tokens/
+auth.json
+
+# Generated per install
+sheet_id.txt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
