@@ -42,6 +42,31 @@ def _hermes_key() -> str:
     return ""
 
 
+def _playbook() -> str:
+    """Kuya's skill + data rules, sent as `instructions` on every turn.
+
+    The public API-server agent is locked to the suki MCP toolset only (no
+    skills/terminal/files), so the playbook travels with the request instead.
+    """
+    skill_dir = os.path.join(REPO, "skills", "kuya-hermes-ops")
+    parts = []
+    for name in ("SKILL.md", os.path.join("references", "data-rules.md")):
+        try:
+            with open(os.path.join(skill_dir, name), encoding="utf-8") as f:
+                parts.append(f.read())
+        except OSError:
+            pass
+    parts.append(
+        "You are answering on the public Kuya Hermes website. Only discuss Suki Mart operations "
+        "using the suki tools. Refuse anything else briefly and politely. Tools appear as "
+        "mcp__suki__<tool> (same as mcp_suki_<tool> in the playbook)."
+    )
+    return "\n\n---\n\n".join(parts)
+
+
+_CHAT_LOCK = __import__("threading").Semaphore(2)  # cap concurrent agent turns from the public site
+
+
 def _ask_kuya(body: dict) -> dict:
     """Forward one chat turn to the real Hermes agent (Responses API).
 
@@ -56,12 +81,18 @@ def _ask_kuya(body: dict) -> dict:
     conversation = str(body.get("conversation") or "kuya-web")[:80]
     req = urllib.request.Request(
         f"{HERMES_API}/v1/responses",
-        data=json.dumps({"model": "hermes-agent", "input": message, "conversation": conversation, "store": True}).encode(),
+        data=json.dumps({"model": "hermes-agent", "input": message, "conversation": conversation,
+                         "instructions": _playbook(), "store": True}).encode(),
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {_hermes_key()}"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=600) as r:
-        data = json.loads(r.read().decode("utf-8"))
+    if not _CHAT_LOCK.acquire(timeout=5):
+        return {"error": "Kuya is busy with other questions. Try again in a minute."}
+    try:
+        with urllib.request.urlopen(req, timeout=600) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    finally:
+        _CHAT_LOCK.release()
 
     text, tools = [], []
     for item in data.get("output", []):
@@ -132,7 +163,31 @@ API = {
 }
 
 
+SITE_PASSWORD = os.environ.get("SITE_PASSWORD", "")  # set when exposing the site through a tunnel
+
+
 class Handler(BaseHTTPRequestHandler):
+    def _authorized(self) -> bool:
+        """HTTP Basic auth gate (any username) when SITE_PASSWORD is set."""
+        if not SITE_PASSWORD:
+            return True
+        import base64
+        import hmac
+
+        header = self.headers.get("Authorization", "")
+        if header.startswith("Basic "):
+            try:
+                _, _, pw = base64.b64decode(header[6:]).decode("utf-8").partition(":")
+                if hmac.compare_digest(pw, SITE_PASSWORD):
+                    return True
+            except ValueError:
+                pass
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", 'Basic realm="Kuya Hermes demo"')
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+        return False
+
     def _send(self, code: int, body: bytes, ctype: str) -> None:
         self.send_response(code)
         self.send_header("Content-Type", ctype)
@@ -154,6 +209,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, f.read(), ctype)
 
     def do_GET(self) -> None:  # noqa: N802 (http.server API)
+        if not self._authorized():
+            return
         path = urlparse(self.path).path.rstrip("/") or "/"
         try:
             if path in PAGES:
@@ -171,6 +228,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": str(e)}, 400)
 
     def do_POST(self) -> None:  # noqa: N802 (http.server API)
+        if not self._authorized():
+            return
         path = urlparse(self.path).path.rstrip("/")
         if path != "/api/chat":
             return self._json({"error": "not found"}, 404)
