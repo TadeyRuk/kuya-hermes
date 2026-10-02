@@ -1,3 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+Thumbs.db
+*.db-journal
+*.db-wal
+*.db-shm
+.env
+
+# local secrets
 hermes_api.txt
 .remember/
 *.env
