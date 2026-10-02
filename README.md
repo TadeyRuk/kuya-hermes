@@ -5,6 +5,18 @@
 > **CAMP / RUN Hermes Agent hackathon · Track 3: Open Innovation**
 > One Hermes agent on two surfaces: **HQ in Hermes Desktop** and **branch managers on Telegram**, sharing the same MCP tools and skill over the Suki Mart sandbox.
 
+### 🔗 Links
+| What | Link |
+|---|---|
+| 🌐 **Website** (landing page) | **https://kuya-hermes.vercel.app** |
+| 📊 **Live dashboard** (snapshot of real Suki Mart data, Sep 30 2026) | https://kuya-hermes.vercel.app/dashboard |
+| 💬 **Telegram bot** (branch managers) | https://t.me/kuyahermes_bot |
+| 💻 **Source code** | https://github.com/polsalarm/kuya-hermes |
+| 🧰 **Hackathon starter kit** (upstream) | https://github.com/TadeyRuk/hermes |
+| 📚 **Hermes Agent docs** | https://hermes-agent.nousresearch.com/docs |
+
+> The Vercel site is a **static snapshot**: real numbers, pre-rendered from `store.db`. The live Kuya chat (the real Hermes agent) runs in the local demo (`uv run web/app.py`) and on Telegram. The Telegram bot and the live chat respond only while the team laptop is running the Hermes gateway.
+
 **Problem.** Suki Mart's branches lose sales and goodwill for reasons nobody connects in time. In the sandbox (as of 2026-09-30):
 - **47 items are out of stock**, and Ermita alone has 14 out of stock with no purchase order.
 - **12 products have duplicate open purchase orders.** BGC's Calamansi Juice has 4 at once.
@@ -47,6 +59,8 @@ uv run web/app.py        # → http://localhost:8787  (dashboard: /dashboard)
 - **`/`**: landing page. Its problem stats are pulled live from `store.db`.
 - **`/dashboard`**: live KPIs, branch risk cards, and a click-through branch pulse, built with the same functions as the MCP server. The **Kuya chat** panel talks to the real Hermes agent (`kuya-hermes-ops` skill and `suki` tools) through Hermes' API server on `127.0.0.1:8642`. The key stays on the server and is never sent to the browser.
 - Read-only by design: purchase orders and shift covers only happen through Kuya, after a yes.
+- **Public tunnel demo** (optional): `$env:SITE_PASSWORD='…'; uv run web/app.py` adds a password, then run `cloudflared tunnel --url http://localhost:8787`. Before exposing it, lock the API-server agent to the suki tools: `hermes config set platform_toolsets.api_server '["mcp-suki"]'`, and disable any other MCP servers. Those load for every platform.
+- **Vercel (static snapshot):** `uv run web/build_static.py`, then `cd web/dist && vercel deploy --prod`. All `/api/*` GETs are pre-rendered to JSON and wired up with rewrites.
 
 ### Demo script (for the video, ~5 min)
 1. **Problem (30s):** Suki Mart branches have stockouts, duplicate POs, short shifts and unanswered tickets, and nobody connects them in time.

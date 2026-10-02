@@ -124,6 +124,12 @@ export function mountChat(root, { mascot = '/assets/kuya-hermes-avatar-160.png' 
     const started = Date.now()
     try {
       const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: q, conversation }) })
+      // Static (Vercel) build has no chat backend: explain instead of erroring.
+      if ([404, 405, 501].includes(r.status)) {
+        thinking.remove()
+        add('bot', md("🧢 This is the **public snapshot** of Kuya Hermes. Live chat runs on our **local demo** (Hermes Desktop + this site on the team laptop) and on **Telegram (@kuyahermes_bot)**. The numbers on this page are real Suki Mart data from Sep 30, 2026."))
+        return
+      }
       const data = await r.json()
       thinking.remove()
       if (data.error) {
