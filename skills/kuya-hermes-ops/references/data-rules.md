@@ -46,4 +46,14 @@ branches ─┬─< inventory >── products >── suppliers
 - Some tickets are open, old and never responded to.
 - Some customers have no marketing opt-in. Never include them in outreach lists.
 
+## Quirks found by the Kuya Hermes team
+- 12 branch/product pairs have 2–4 open POs at once (e.g. BGC Calamansi Juice 1L
+  has 4). `check_restock` lists them; report them as duplicates for purchasing.
+- Visayas Canning Corp. promises 5 days but really takes ~11.3 days; Tropika
+  Juice promises 4 and takes ~6.9. The tools use the real averages.
+- ERM (Ermita) and MAN (Mandaluyong Shaw) have no delivery.
+- ERM has the most out-of-stock items (14), followed by ALB and ORT (11 each).
+- Upcoming shifts (2026-10-01 onward) are all `scheduled`. A covered absence
+  becomes `called_in_sick`, and a new `scheduled` row is added for the cover.
+
 Add every new quirk the team finds here.
