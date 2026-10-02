@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/kuya-hermes-fullbody.png" alt="Kuya Hermes mascot" width="220"></p>
+
 # Kuya Hermes · Suki Mart branch-ops copilot
 
 > **CAMP / RUN Hermes Agent hackathon · Track 3: Open Innovation**
@@ -32,6 +34,17 @@ hermes gateway restart
 hermes desktop        # Ctrl+K → Reload desktop plugins → sidebar: Kuya Hermes HQ
 ```
 Reset the data after a demo with `git checkout -- data/store.db`.
+
+### Demo script (for the video, ~5 min)
+1. **Problem (30s):** Suki Mart branches have stockouts, duplicate POs, short shifts and unanswered tickets, and nobody connects them in time.
+2. **HQ in Desktop (2 min):** sidebar → **Kuya Hermes HQ** → **Run full sweep**. Kuya ranks all 12 branches (Ermita and Alabang are worst) and the KPI tiles and risk badges fill in live. Click **ERM → Branch pulse**, then **Fix stockouts**: Kuya skips items with an open PO, drafts the rest, and asks *"I-file ko na ba?"*. Answer yes, and you get PO numbers back.
+3. **Field on Telegram (1.5 min):** *"di pumasok si John Soriano bukas ng 7am sa Alabang"* → Kuya finds his shift, proposes Rowena Tomas (fewest absences), and books the cover after a yes. Only the final answers show in Telegram (tool progress is turned off there).
+4. **Close (30s):** one agent, two surfaces, same MCP and skill, and every write needs a human yes.
+
+### Assets
+- `assets/kuya-hermes-fullbody.png`, `assets/kuya-hermes-avatar.png`: mascot (the 160px avatar is embedded in the plugin)
+- `assets/icons.md`: the UI icon set (inline SVG, `currentColor`)
+- `assets/ui-inspo.png`: the design reference for the HQ page
 
 `sari-sari/` holds our earlier prototype: the same Kuya Hermes persona keeping utang and stock for a single sari-sari store via Telegram and Google Sheets.
 
