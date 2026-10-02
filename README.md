@@ -10,6 +10,7 @@
 |---|---|
 | 🌐 **Website** (landing page) | **https://kuya-hermes.vercel.app** |
 | 📊 **Live dashboard** (snapshot of real Suki Mart data, Sep 30 2026) | https://kuya-hermes.vercel.app/dashboard |
+| 🧢 **Live demo with real Hermes chat** (temporary tunnel, only while the team laptop is on) | https://packets-tract-streets-macintosh.trycloudflare.com: username **anything**, password **`suki-kuya-2026`** |
 | 💬 **Telegram bot** (branch managers) | https://t.me/kuyahermes_bot |
 | 💻 **Source code** | https://github.com/polsalarm/kuya-hermes |
 | 🧰 **Hackathon starter kit** (upstream) | https://github.com/TadeyRuk/hermes |
