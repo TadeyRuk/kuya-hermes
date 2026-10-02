@@ -125,6 +125,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
 /* ---------- dashboard ---------- */
 .dash { padding: 28px 0 60px; display: grid; gap: 22px; }
+.dash section { padding: 0; }            /* landing's section padding must not leak in */
+.dash section.sweep { padding: 20px; }
 .dash-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
 .dash-head .who { display: flex; align-items: center; gap: 16px; }
 .dash-head .who img { width: 72px; height: 72px; border-radius: 50%; background: var(--card-2); box-shadow: 0 0 0 3px rgba(245, 184, 61, .5), 0 0 30px rgba(245, 184, 61, .25); }
