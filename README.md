@@ -35,6 +35,19 @@ hermes desktop        # Ctrl+K → Reload desktop plugins → sidebar: Kuya Herm
 ```
 Reset the data after a demo with `git checkout -- data/store.db`.
 
+### Website (landing page + live dashboard with real Hermes chat)
+```powershell
+# 1. Turn on Hermes' local API server: add to %LOCALAPPDATA%\hermes\.env, then restart the gateway
+#    API_SERVER_ENABLED=true
+#    API_SERVER_KEY=<any long random string>
+hermes gateway restart
+# 2. Run the site
+uv run web/app.py        # → http://localhost:8787  (dashboard: /dashboard)
+```
+- **`/`**: landing page. Its problem stats are pulled live from `store.db`.
+- **`/dashboard`**: live KPIs, branch risk cards, and a click-through branch pulse, built with the same functions as the MCP server. The **Kuya chat** panel talks to the real Hermes agent (`kuya-hermes-ops` skill and `suki` tools) through Hermes' API server on `127.0.0.1:8642`. The key stays on the server and is never sent to the browser.
+- Read-only by design: purchase orders and shift covers only happen through Kuya, after a yes.
+
 ### Demo script (for the video, ~5 min)
 1. **Problem (30s):** Suki Mart branches have stockouts, duplicate POs, short shifts and unanswered tickets, and nobody connects them in time.
 2. **HQ in Desktop (2 min):** sidebar → **Kuya Hermes HQ** → **Run full sweep**. Kuya ranks all 12 branches (Ermita and Alabang are worst) and the KPI tiles and risk badges fill in live. Click **ERM → Branch pulse**, then **Fix stockouts**: Kuya skips items with an open PO, drafts the rest, and asks *"I-file ko na ba?"*. Answer yes, and you get PO numbers back.

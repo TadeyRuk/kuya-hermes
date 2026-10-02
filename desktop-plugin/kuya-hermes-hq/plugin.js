@@ -144,13 +144,17 @@ function findPayload(value, key, depth = 0) {
 
 function onToolComplete(event) {
   const p = (event && event.payload) || {}
-  const name = String(p.name || '')
+  // MCP tools may arrive directly ("mcp__suki__branch_pulse") or wrapped in a
+  // generic tool_call whose args hold {calls: [{name: ...}]}.
+  const calls = (p.args && Array.isArray(p.args.calls)) ? p.args.calls.map((c) => c && c.name).join(' ') : ''
+  const name = `${p.name || ''} ${calls}`
   if (!/suki/.test(name)) return
   const raw = p.result !== undefined && p.result !== null ? p.result : p.result_text
   if (/network_sweep/.test(name)) {
     const sweep = findPayload(raw, 'branches')
     if (sweep) setState({ sweep, sweepAt: new Date().toISOString() })
-  } else if (/branch_pulse/.test(name)) {
+  }
+  if (/branch_pulse/.test(name)) {
     const pulse = findPayload(raw, 'stock_alerts')
     if (pulse && pulse.branch) {
       const code = String(pulse.branch).slice(0, 3)
@@ -227,7 +231,7 @@ function StatusPill({ dot, icon, children }) {
   return h('span', {
     className: 'inline-flex items-center gap-1.5 rounded-lg border border-(--ui-stroke-secondary) bg-(--ui-bg-card) px-2.5 py-1 text-xs text-(--ui-text-secondary)'
   },
-    icon ? jsx(Icon, { name: icon, size: 13 }) : h('span', { className: 'size-2 rounded-full', style: { background: dot } }),
+    icon ? jsx(Icon, { name: icon, size: 13 }) : h('span', { className: 'rounded-full', style: { width: 8, height: 8, borderRadius: 999, background: dot } }),
     children)
 }
 
@@ -237,8 +241,8 @@ function Header({ gateway, busy }) {
     h('div', { className: 'flex items-center gap-4' },
       h('img', {
         src: MASCOT, alt: 'Kuya Hermes',
-        className: 'size-20 shrink-0 rounded-full object-cover',
-        style: { background: accentMix(18), boxShadow: `0 0 0 3px ${accentMix(35)}, 0 0 36px ${accentMix(30)}` }
+        className: 'shrink-0 rounded-full object-cover',
+        style: { width: 80, height: 80, borderRadius: 999, objectFit: 'cover', flexShrink: 0, background: accentMix(18), boxShadow: `0 0 0 3px ${accentMix(35)}, 0 0 36px ${accentMix(30)}` }
       }),
       h('div', { className: 'flex flex-col gap-1' },
         h('div', { className: 'text-3xl font-bold tracking-tight' }, 'Kuya Hermes HQ'),
@@ -259,8 +263,8 @@ function SweepCard({ busy, live }) {
   },
     h('div', { className: 'flex items-center gap-4' },
       h('div', {
-        className: 'flex size-14 shrink-0 items-center justify-center rounded-xl',
-        style: { background: accentMix(16), color: ACCENT }
+        className: 'flex shrink-0 items-center justify-center rounded-xl',
+        style: { width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: accentMix(16), color: ACCENT }
       }, jsx(Icon, { name: 'fullSweep', size: 28 })),
       h('div', { className: 'flex flex-col gap-1' },
         h('div', { className: 'text-xl font-semibold' }, 'Run full sweep'),
@@ -270,7 +274,7 @@ function SweepCard({ busy, live }) {
           live.sweepAt ? `Nothing is written until you approve · last sweep ${timeAgo(live.sweepAt)}` : 'Nothing is written until you approve.'))
     ),
     jsx(PrimaryButton, {
-      disabled: busy, icon: busy ? null : 'fullSweep', onClick: () => send(SWEEP_PROMPT), className: 'min-w-48 py-3 text-base',
+      disabled: busy, icon: busy ? null : 'fullSweep', onClick: () => send(SWEEP_PROMPT), className: 'py-3 text-base',
       children: busy ? 'Kuya is working…' : 'Run full sweep'
     })
   )
@@ -286,7 +290,7 @@ function Kpis({ sweep }) {
     { icon: 'fieldReport', label: 'Tickets never answered', value: sum('tickets_never_answered'), hot: true },
     { icon: 'lateDelivery', label: 'Late/failed deliveries 7d', value: sum('late_or_failed_deliveries_7d') }
   ]
-  return h('div', { className: 'grid grid-cols-2 gap-3 md:grid-cols-5' },
+  return h('div', { className: 'grid', style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 12 } },
     tiles.map((t) =>
       h('div', { key: t.label, className: 'flex flex-col gap-2 rounded-xl border border-(--ui-stroke-secondary) bg-(--ui-bg-card) p-3.5' },
         h('div', { className: 'flex items-center gap-2 text-xs text-(--ui-text-tertiary)' },
@@ -331,8 +335,8 @@ function ActionCard({ action, branch, busy }) {
       'transition-colors hover:bg-(--ui-bg-secondary) disabled:cursor-not-allowed disabled:opacity-60'
   },
     h('span', {
-      className: 'flex size-10 shrink-0 items-center justify-center rounded-lg',
-      style: { background: accentMix(14), color: ACCENT }
+      className: 'flex shrink-0 items-center justify-center rounded-lg',
+      style: { width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: accentMix(14), color: ACCENT }
     }, jsx(Icon, { name: action.icon, size: 20 })),
     h('span', { className: 'flex min-w-0 flex-1 flex-col' },
       h('span', { className: 'font-semibold' }, action.label),
@@ -372,7 +376,7 @@ function PulseView({ pulse }) {
   const gaps = (pulse.shift_gaps_next_2_days || []).slice(0, 4)
   const t = pulse.tickets || {}
   const d = pulse.deliveries_last_7d
-  return h('div', { className: 'grid grid-cols-1 gap-4 rounded-xl border border-(--ui-stroke-secondary) bg-(--ui-bg-card) p-4 md:grid-cols-2' },
+  return h('div', { className: 'rounded-xl border border-(--ui-stroke-secondary) bg-(--ui-bg-card) p-4', style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 } },
     h('div', { className: 'flex flex-col gap-2' },
       h('div', { className: 'flex items-center justify-between text-xs font-semibold text-(--ui-text-secondary)' },
         h('span', null, `Stock alerts · ${pulse.stock_alerts_total || 0} total, ${pulse.out_of_stock || 0} out`),
@@ -427,8 +431,13 @@ function HqPage() {
   const byCode = Object.fromEntries(rows.map((r, i) => [r.branch, { ...r, rank: i + 1 }]))
   const max = Math.max(1, ...rows.map((r) => Number(r.risk_score) || 0))
 
-  return h('div', { className: 'h-full overflow-auto' },
-    h('div', { className: 'mx-auto flex max-w-5xl flex-col gap-6 p-7 text-sm' },
+  // Layout-critical styles are inline: the host app only ships the Tailwind
+  // classes its own code uses, so max-width / custom grid utilities may not exist.
+  return h('div', { className: 'h-full overflow-auto', style: { height: '100%', overflow: 'auto' } },
+    h('div', {
+      className: 'flex flex-col text-sm',
+      style: { maxWidth: 1080, margin: '0 auto', padding: '32px clamp(20px, 5vw, 64px) 48px', display: 'flex', flexDirection: 'column', gap: 24 }
+    },
       jsx(Header, { gateway, busy }),
       jsx(SweepCard, { busy, live }),
       rows.length ? jsx(Kpis, { sweep: live.sweep }) : null,
@@ -439,7 +448,7 @@ function HqPage() {
             ? h('span', { className: 'text-xs text-(--ui-text-tertiary)' }, `risk scores from last sweep · ${timeAgo(live.sweepAt)}`)
             : h('span', { className: 'text-xs text-(--ui-text-tertiary)' }, 'run a sweep to see live risk scores')
         }),
-        h('div', { className: 'grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4' },
+        h('div', { className: 'grid', style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 } },
           BRANCHES.map((b) => jsx(BranchCard, {
             branch: b, selected: b.code === code, onSelect: setCode,
             risk: byCode[b.code], rank: byCode[b.code] && byCode[b.code].rank, max
@@ -447,7 +456,7 @@ function HqPage() {
       ),
       h('div', { className: 'flex flex-col gap-3' },
         jsx(SectionLabel, { children: `${branch.code} · ${branch.name}` }),
-        h('div', { className: 'grid grid-cols-1 gap-3 md:grid-cols-3' },
+        h('div', { className: 'grid', style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 } },
           BRANCH_ACTIONS.map((a) => jsx(ActionCard, { action: a, branch, busy }, a.id))),
         jsx(AskBox, { branch, busy }),
         live.pulses[code] ? jsx(PulseView, { pulse: live.pulses[code] }) : null
@@ -468,7 +477,7 @@ function HqPane() {
 
   return h('div', { className: 'flex h-full flex-col gap-3 overflow-auto p-3 text-sm' },
     h('div', { className: 'flex items-center gap-2.5' },
-      h('img', { src: MASCOT, alt: 'Kuya Hermes', className: 'size-10 rounded-full object-cover', style: { background: accentMix(18) } }),
+      h('img', { src: MASCOT, alt: 'Kuya Hermes', className: 'rounded-full object-cover', style: { width: 40, height: 40, borderRadius: 999, objectFit: 'cover', background: accentMix(18) } }),
       h('div', null,
         h('div', { className: 'font-semibold' }, 'Kuya Hermes HQ'),
         h('div', { className: 'text-xs text-(--ui-text-tertiary)' }, busy ? 'Kuya is working…' : 'Suki Mart branch ops'))),
