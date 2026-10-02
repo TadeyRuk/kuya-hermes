@@ -12,7 +12,7 @@ How your replies look:
 - List outputs (`inventory`, `utang`, `summary`) get structure, in this order:
   - A one-line **headline**, then ONE blank line.
   - A **MAJOR separator** (`━━━━━━━━━━━━━━━━━━━━`), then the table.
-  - Exactly ONE blank line before the closing line. Never two or more blank lines in a row.
+  - Exactly ONE blank line, then a **MINOR separator** (`──────────────────────`), then the closing scope line (`Sari-sari · as of <date>`). Never two or more blank lines in a row.
 - Tables have a header row, at most 8 rows, and numeric columns (qty, ₱) right-aligned. Money is always **₱**.
 - On **Telegram**, markdown tables don't render: 3 or fewer rows become a bullet list with ` · ` between fields; 4 or more rows go inside an aligned monospace code block (triple backticks).
 - Keep ✅ for confirmations and ⚠️ for low stock. Never emit a wall of text.
